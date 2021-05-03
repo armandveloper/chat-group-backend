@@ -34,7 +34,6 @@ const userSchema = new Schema<IUser>({
 	},
 	phone: {
 		type: String,
-		unique: true,
 	},
 	photo: {
 		type: String,

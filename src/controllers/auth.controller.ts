@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import User from '../models/User';
+import User, { IUser } from '../models/User';
 import { createToken } from '../helpers/jwt';
 
 export const register = async (req: Request, res: Response) => {
@@ -41,10 +41,12 @@ export const login = async (req: Request, res: Response) => {
 				msg: 'Email or password are incorrect',
 			});
 		}
+		const token = createToken(user);
 		return res.json({
 			success: true,
 			msg: 'Login successfully',
-			token: createToken(user),
+			token,
+			user: { uid: user.id },
 		});
 	} catch (err) {
 		console.log(err);
@@ -52,5 +54,22 @@ export const login = async (req: Request, res: Response) => {
 			success: false,
 			msg: 'Something Went Wrong. Try again later',
 		});
+	}
+};
+
+export const renewToken = async (req: Request, res: Response) => {
+	try {
+		const uid = req.user as IUser;
+		const token = await createToken(uid);
+		const user = await User.findById(uid);
+		return res.json({
+			success: true,
+			msg: 'Token was renewed',
+			user: { uid: user?.id },
+			token,
+		});
+	} catch (err) {
+		console.log(err);
+		res.json({ success: false, msg: 'Error renewing token' });
 	}
 };

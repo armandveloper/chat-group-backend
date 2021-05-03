@@ -1,14 +1,15 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { login, register } from '../controllers/auth.controller';
+import passport from 'passport';
 import { checkErrors } from '../validations/checkErrors';
+import { login, register, renewToken } from '../controllers/auth.controller';
 
 const router = Router();
 
 router.post(
 	'/register',
 	[
-    body('name', 'Your name is required').not().isEmpty(),
+		body('name', 'Your name is required').not().isEmpty(),
 		body('email', 'Email must be a valid email').isEmail(),
 		body('password', 'Password must be at least 8 characters').isLength({
 			min: 8,
@@ -28,6 +29,12 @@ router.post(
 		checkErrors,
 	],
 	login
+);
+
+router.get(
+	'/renewToken',
+	passport.authenticate('jwt', { session: false }),
+	renewToken
 );
 
 export default router;
