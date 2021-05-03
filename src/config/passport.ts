@@ -9,12 +9,12 @@ const opts: StrategyOptions = {
 
 export default new Strategy(opts, async (payload, done) => {
 	try {
-		const user = await User.findById(payload.id).select('-password');
+		const user = await User.findById(payload.id).select('email');
 		if (user) {
-			return done(null, user);
+			return done(null, user, payload);
 		}
 		return done(null, false);
-	} catch (error) {
-		console.log(error);
+	} catch {
+		return done(null, false);
 	}
 });

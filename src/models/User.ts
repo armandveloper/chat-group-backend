@@ -15,6 +15,7 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>({
 	name: {
 		type: String,
+		required: true,
 	},
 	bio: {
 		type: String,
@@ -37,6 +38,8 @@ const userSchema = new Schema<IUser>({
 	},
 	photo: {
 		type: String,
+		default:
+			'https://res.cloudinary.com/dxmhr2agc/image/upload/v1596075793/fastshopping/profile/usuario_g6ovba.svg',
 	},
 });
 

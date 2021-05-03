@@ -3,7 +3,7 @@ import User from '../models/User';
 import { createToken } from '../helpers/jwt';
 
 export const register = async (req: Request, res: Response) => {
-	const { email, password } = req.body;
+	const { name, email, password } = req.body;
 	try {
 		const userExists = await User.findOne({ email });
 		if (userExists) {
@@ -12,7 +12,7 @@ export const register = async (req: Request, res: Response) => {
 				msg: 'Email already in use',
 			});
 		}
-		const user = new User({ email, password });
+		const user = new User({ name, email, password });
 		await user.hashPassword(password);
 		await user.save();
 		res.status(201).json({ success: true, msg: 'Register successfully' });

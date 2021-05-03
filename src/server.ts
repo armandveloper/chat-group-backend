@@ -1,11 +1,8 @@
 import express from 'express';
-import dontenv from 'dotenv';
 import passport from 'passport';
 import passportConfig from './config/passport';
 import config from './config';
 import indexRoutes from './routes/index.routes';
-
-dontenv.config();
 
 const app = express();
 

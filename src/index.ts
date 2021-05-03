@@ -1,3 +1,5 @@
+import dontenv from 'dotenv';
+dontenv.config();
 import app from './server';
 import './config/database';
 
