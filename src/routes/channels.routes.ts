@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
-import { createChannel, inviteUser } from '../controllers/channels.controller';
+import {
+	createChannel,
+	getMembers,
+	inviteUser,
+} from '../controllers/channels.controller';
 import { checkErrors } from '../validations/checkErrors';
 
 const router = Router();
@@ -25,6 +29,12 @@ router.post(
 		checkErrors,
 	],
 	inviteUser
+);
+
+router.get(
+	'/:id/members',
+	[param('id', 'A valid channel id is required').isMongoId(), checkErrors],
+	getMembers
 );
 
 export default router;

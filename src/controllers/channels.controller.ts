@@ -67,3 +67,19 @@ export const inviteUser = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+export const getMembers = async (req: Request, res: Response) => {
+	const { id } = req.params;
+	try {
+		const members = await ChannelUser.find({ channel: id, active: true })
+			.select('user')
+			.populate('user', 'name photo');
+		res.json({ success: true, members });
+	} catch (err) {
+		console.log('Get channel members error:', err);
+		res.status(500).json({
+			success: false,
+			msg: 'Something Went Wrong. Try later',
+		});
+	}
+};

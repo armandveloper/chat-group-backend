@@ -32,3 +32,23 @@ export const replyInvitation = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+// Controlador que devuelve todos los canales a los que un usuario pertenece (en activo)
+export const getMembership = async (req: Request, res: Response) => {
+	const { user } = req.params;
+	try {
+		const channels = await ChannelUser.find({
+			user,
+			active: true,
+		})
+			.select('channel')
+			.populate('channel', 'name description');
+		res.json({ success: true, channels });
+	} catch (err) {
+		console.log('Get membership error:', err);
+		res.status(500).json({
+			success: false,
+			msg: 'Something Went Wrong. Try later',
+		});
+	}
+};

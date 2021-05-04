@@ -29,7 +29,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 			{
 				new: true,
 			}
-		).select('name bio phone');
+		).select('-password');
 		res.json({ success: true, user });
 	} catch (err) {
 		console.log('Update profile error:', err);
