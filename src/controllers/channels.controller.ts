@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Channel from '../models/Channel';
-import User from '../models/User';
+import User, { IUser } from '../models/User';
 import ChannelUser from '../models/ChannelUser';
 
 export const createChannel = async (req: Request, res: Response) => {
@@ -17,7 +17,7 @@ export const createChannel = async (req: Request, res: Response) => {
 		const membership = new ChannelUser({
 			channel: channel.id,
 			user: creator,
-			role: 'creator',
+			userRole: 'creator',
 			active: true,
 		});
 		await membership.save();
@@ -31,9 +31,9 @@ export const createChannel = async (req: Request, res: Response) => {
 	}
 };
 
-export const inviteUser = async (req: Request, res: Response) => {
+export const inviteUsers = async (req: Request, res: Response) => {
 	const { id } = req.params;
-	const { email } = req.body;
+	const { emails } = req.body;
 	try {
 		const channel = await Channel.findById(id);
 		if (!channel) {
@@ -42,26 +42,42 @@ export const inviteUser = async (req: Request, res: Response) => {
 				msg: "Channel doesn't exists",
 			});
 		}
-		const user = await User.findOne({ email });
-		if (!user) {
+		const userPromises = emails.map((email: string) =>
+			User.findOne({ email })
+		);
+
+		const usersResult: IUser[] = await Promise.all(userPromises);
+		// Usuarios que si existan
+		const validUsers = usersResult.filter((user) => user !== null);
+
+		if (validUsers.length === 0) {
 			return res.status(404).json({
 				success: false,
-				msg: "User doesn't exists",
+				msg: "Someone users doesn't exists",
 			});
 		}
-		const membership = new ChannelUser({
-			channel: channel?.id,
-			user: user?.id,
-			role: 'guest',
-			active: false,
+
+		// Para cada usuario crear una suscripción pendiente al canal
+		const membershipPromises = validUsers.map((user: IUser) => {
+			const membership = new ChannelUser({
+				channel: channel?.id,
+				user: user?.id,
+				role: 'guest',
+				active: false,
+			});
+			return membership.save();
 		});
-		await membership.save();
-		return res
-			.status(201)
-			.json({ success: true, msg: 'Invitation was sent' });
+
+		const membershipResult = await Promise.all(membershipPromises);
+
+		return res.status(201).json({
+			success: true,
+			msg: 'The invitations was sent',
+			membershipResult,
+		});
 	} catch (err) {
 		console.log('Channel invite error:', err);
-		res.status(500).json({
+		return res.status(500).json({
 			success: false,
 			msg: 'Something Went Wrong. Try later',
 		});
@@ -73,7 +89,7 @@ export const getMembers = async (req: Request, res: Response) => {
 	try {
 		const members = await ChannelUser.find({ channel: id, active: true })
 			.select('user')
-			.populate('user', 'name photo');
+			.populate('user', 'name email photo');
 		res.json({ success: true, members });
 	} catch (err) {
 		console.log('Get channel members error:', err);

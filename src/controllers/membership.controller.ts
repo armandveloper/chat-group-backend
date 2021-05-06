@@ -42,7 +42,7 @@ export const getMembership = async (req: Request, res: Response) => {
 			active: true,
 		})
 			.select('channel')
-			.populate('channel', 'name description');
+			.populate('channel', 'name description creator');
 		res.json({ success: true, channels });
 	} catch (err) {
 		console.log('Get membership error:', err);

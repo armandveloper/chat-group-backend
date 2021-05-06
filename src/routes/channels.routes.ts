@@ -3,8 +3,9 @@ import { body, param } from 'express-validator';
 import {
 	createChannel,
 	getMembers,
-	inviteUser,
+	inviteUsers,
 } from '../controllers/channels.controller';
+import { isArrayOfEmail } from '../validations';
 import { checkErrors } from '../validations/checkErrors';
 
 const router = Router();
@@ -25,10 +26,12 @@ router.post(
 	'/:id',
 	[
 		param('id', 'A valid channel id is required').isMongoId(),
-		body('email', 'A valid email is required').isEmail(),
+		body('emails', 'The email list must have at least one email')
+			.isArray({ min: 1 })
+			.custom(isArrayOfEmail),
 		checkErrors,
 	],
-	inviteUser
+	inviteUsers
 );
 
 router.get(
